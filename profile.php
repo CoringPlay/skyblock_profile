@@ -80,7 +80,7 @@ if (isset($_GET['playerName'])) {
                             $levelA = isset($a['level']['level']) ? $a['level']['level'] : 0;
                             $levelB = isset($b['level']['level']) ? $b['level']['level'] : 0;
 
-                            return $levelA - $levelB;
+                            return $levelB - $levelA; // Изменение порядка для сортировки от большего к меньшему
                         }
 
                         // Выбор функции сортировки в зависимости от выбранного метода
