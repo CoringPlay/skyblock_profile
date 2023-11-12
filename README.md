@@ -23,3 +23,13 @@ To use the skyblock_profile, follow these steps:
 ## Sorting
 
 By default, pets are sorted by rarity. You can change the sorting method using the dropdown menu. Choose between sorting by rarity or level, and in ascending or descending order.
+
+## Contributing
+
+Contributions are welcome! If you find a bug or have an idea for an improvement, please open an issue or submit a pull request.
+
+## Future Plans
+
+- **JavaScript Version:** A JavaScript version of the skyblock_profile is planned for the future.
+- **Additional Features:** More features and improvements will be added to enhance the user experience.
+- **Bug Fixes:** Any reported bugs will be addressed in future updates.
