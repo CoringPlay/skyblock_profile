@@ -1,0 +1,44 @@
+/* pet-styles.css */
+
+.pet-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.pet-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    width: 200px; /* Вы можете регулировать ширину под свои потребности */
+}
+
+.pet-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Дополнительные стили для каждой редкости */
+
+.piece-mythic-bg {
+    background-color: #fd64de; /* Замените на ваше значение */
+}
+
+.piece-legendary-bg {
+    background-color: #ffaa00; /* Замените на ваше значение */
+}
+
+.piece-epic-bg {
+    background-color: #eb17eb; /* Замените на ваше значение */
+}
+
+.piece-rare-bg {
+    background-color: #7486f0; /* Замените на ваше значение */
+}
+
+.piece-uncommon-bg {
+    background-color: #5bda5b; /* Замените на ваше значение */
+}
+
+.piece-common-bg {
+    background-color: #ffffff; /* Замените на ваше значение */
+}
