@@ -5,53 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Viewer</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="pet-styles.css" class="">
-
-    <!-- jQuery (если еще не подключен) -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Обработчик изменения значения в выпадающем списке
-            $('#sort').change(function() {
-                // Получаем выбранное значение сортировки
-                var sortMethod = $(this).val();
-
-                // Получаем playerName из URL
-                var playerName = '<?php echo isset($_GET['playerName']) ? $_GET['playerName'] : ''; ?>';
-
-                // Отправляем AJAX-запрос на сервер с параметрами сортировки и playerName
-                $.ajax({
-                    url: 'ajax_sort_profile.php',
-                    method: 'GET',
-                    data: { sort: sortMethod, playerName: playerName },
-                    success: function(response) {
-                        // Обновляем контент на странице с полученными данными
-                        $('#pet-container').html(response);
-                    },
-                    error: function(error) {
-                        console.log('Error:', error);
-                    }
-                });
-            });
-        });
-    </script>
+    <link rel="stylesheet" href="pet-styles.css">
 </head>
 <body>
 <?php
 if (isset($_GET['playerName'])) {
     $playerName = $_GET['playerName'];
     $apiUrl = "https://sky.shiiyu.moe/api/v2/profile/{$playerName}";
-
+    
     // Получаем JSON-данные
     $json = file_get_contents($apiUrl);
-
+    
     // Преобразуем JSON в массив
     $data = json_decode($json, true);
-
+    
     if ($data) {
         // Отображаем профиль
         echo "<h1>Профиль игрока: {$playerName}</h1>";
-
+        
         // Выводим массив profiles
         echo "<h2>Выберите профиль:</h2>";
         echo "<ul>";
@@ -60,7 +31,7 @@ if (isset($_GET['playerName'])) {
             echo "<li><a href='profile.php?playerName={$playerName}&profile={$profile['profile_id']}'>{$profile['cute_name']}</a></li>";
         }
         echo "</ul>";
-
+        
         // Проверяем, есть ли выбранный профиль в URL
         if (isset($_GET['profile'])) {
             $selectedProfileId = $_GET['profile'];
@@ -70,22 +41,78 @@ if (isset($_GET['playerName'])) {
                 if ($profile['profile_id'] == $selectedProfileId) {
                     echo "<h2>Выбранный профиль: {$profile['cute_name']}</h2>";
 
-                    // Выводим контейнер для питомцев с выпадающим списком сортировки
-                    echo "<div>";
-                    echo "<label for='sort'>Сортировка:</label>";
-                    echo "<select id='sort' name='sort'>";
-                    echo "<option value='rarity'>По редкости</option>";
-                    echo "<option value='level'>По уровню</option>";
-                    echo "</select>";
-                    echo "</div>";
+                    // Проверяем, есть ли объект "raw" и внутри него массив "pets"
+                    if (isset($profile['raw']['pets']) && is_array($profile['raw']['pets'])) {
+                        // Функция для сравнения питомцев по редкости
+                        function comparePetsByRarity($a, $b) {
+                            $rarityOrder = [
+                                'mythic' => 1,
+                                'legendary' => 2,
+                                'epic' => 3,
+                                'rare' => 4,
+                                'uncommon' => 5,
+                                'common' => 6,
+                            ];
 
-                    // Выводим контейнер для питомцев
-                    echo "<div id='pet-container'>";
-                    // Помещаем сюда код для вывода питомцев (замените на ваш код)
-                    echo "</div>";
+                            $rarityA = isset($a['rarity']) ? $a['rarity'] : 'common';
+                            $rarityB = isset($b['rarity']) ? $b['rarity'] : 'common';
 
-                    // Закрываем теги для контейнеров
-                    echo "</div>";
+                            return $rarityOrder[$rarityA] - $rarityOrder[$rarityB];
+                        }
+
+                        // Сортировка массива питомцев по редкости
+                        usort($profile['raw']['pets'], 'comparePetsByRarity');
+
+                        // Выводим питомцев
+                        echo "<h3>Информация из массива 'pets':</h3>";
+                        echo "<div class='pet-container'>";
+                        foreach ($profile['raw']['pets'] as $pet) {
+                            // Проверяем, есть ли нужные ключи в данных о питомце
+                            $name = isset($pet['name']) ? $pet['name'] : 'Нет данных';
+                            $level = isset($pet['level']['level']) ? $pet['level']['level'] : 'Нет данных';
+                            $soulbound = isset($pet['soulbound']) ? ($pet['soulbound'] ? 'Да' : 'Нет') : 'Нет данных';
+                            $rarity = isset($pet['rarity']) ? $pet['rarity'] : 'Нет данных';
+                            $texturePath = isset($pet['texture_path']) ? "https://mc-heads.net" . $pet['texture_path'] : 'Нет данных';
+                            $lore = isset($pet['lore']) ? $pet['lore'] : 'Нет данных';
+
+                            // Определение класса для фона в зависимости от редкости
+                            $rarityClass = "piece-common-bg"; // По умолчанию для случая, если редкость не соответствует ожидаемым значениям
+
+                            switch ($rarity) {
+                                case 'mythic':
+                                    $rarityClass = "piece-mythic-bg";
+                                    break;
+                                case 'legendary':
+                                    $rarityClass = "piece-legendary-bg";
+                                    break;
+                                case 'epic':
+                                    $rarityClass = "piece-epic-bg";
+                                    break;
+                                case 'rare':
+                                    $rarityClass = "piece-rare-bg";
+                                    break;
+                                case 'uncommon':
+                                    $rarityClass = "piece-uncommon-bg";
+                                    break;
+                                case 'common':
+                                    $rarityClass = "piece-common-bg";
+                                    break;
+                            }
+
+                            echo "<div class='pet-item {$rarityClass}'>";
+                            echo "<div class='pet-image'><img src='{$texturePath}' alt='{$name}'></div>";
+                            echo "<strong>Имя:</strong> {$name}, ";
+                            echo "<strong>Уровень:</strong> {$level}, ";
+                            echo "<strong>Soulbound:</strong> {$soulbound}, ";
+                            echo "<strong>Редкость:</strong> {$rarity}, ";
+                            echo "<strong>Описание:</strong> {$lore}";
+                            echo "</div>";
+                        }
+                        echo "</div>";
+                    } else {
+                        echo "<p>Нет информации о питомцах.</p>";
+                    }
+                    // Выводите другие данные по вашему желанию
                 }
             }
         }
