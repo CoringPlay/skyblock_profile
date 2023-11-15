@@ -9,19 +9,45 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"></noscript>
     <style>
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
         .pet-details {
-            padding: 10px;
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
             border: 1px solid #ddd;
-            margin-top: 10px;
             background-color: #f9f9f9;
+            z-index: 1000;
         }
 
         .pet-details strong {
             color: #333;
         }
+
+        .close-btn {
+            cursor: pointer;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 5px;
+            background-color: #ddd;
+        }
     </style>
 </head>
 <body>
+<div class="overlay"></div>
 <?php
 if (isset($_GET['playerName'])) {
     $playerName = $_GET['playerName'];
@@ -136,5 +162,49 @@ if (isset($_GET['playerName'])) {
     echo "<p>Введите никнейм в форму.</p>";
 }
 ?>
+<script>
+    // JavaScript-код для отображения и закрытия всплывающего окна при клике на питомца
+    document.addEventListener('DOMContentLoaded', function () {
+        const overlay = document.querySelector('.overlay');
+        const petDetails = document.querySelectorAll('.pet-details');
+        const closeBtns = document.querySelectorAll('.close-btn');
+
+        // Функция для открытия всплывающего окна
+        function openPetDetails(index) {
+            overlay.style.display = 'block';
+            petDetails[index].style.display = 'block';
+        }
+
+        // Функция для закрытия всплывающего окна
+        function closePetDetails(index) {
+            overlay.style.display = 'none';
+            petDetails[index].style.display = 'none';
+        }
+
+        // Обработчики событий для каждой кнопки "Подробнее"
+        const petItems = document.querySelectorAll('.pet-item');
+        petItems.forEach(function (petItem, index) {
+            petItem.addEventListener('click', function () {
+                openPetDetails(index);
+            });
+        });
+
+        // Обработчики событий для каждой кнопки "Закрыть"
+        closeBtns.forEach(function (closeBtn, index) {
+            closeBtn.addEventListener('click', function (event) {
+                event.stopPropagation(); // Предотвращаем всплывание события к родительским элементам
+                closePetDetails(index);
+            });
+        });
+
+        // Обработчик события для закрытия всплывающего окна при клике за его пределами
+        overlay.addEventListener('click', function () {
+            overlay.style.display = 'none';
+            petDetails.forEach(function (petDetail) {
+                petDetail.style.display = 'none';
+            });
+        });
+    });
+</script>
 </body>
 </html>
